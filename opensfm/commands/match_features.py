@@ -240,9 +240,11 @@ def match(args):
                 continue
 
         # symmetric matching
-        t = timer()
+        t = t1 = timer()
         p1, f1, c1 = ctx.data.load_features(im1)
         p2, f2, c2 = ctx.data.load_features(im2)
+        logger.debug("Loading features done, time: {}s".format(timer()-t1))
+        t1 = timer()
 
         if config['matcher_type'] == 'FLANN':
             i1 = ctx.data.load_feature_index(im1, f1)
@@ -250,8 +252,13 @@ def match(args):
         else:
             i1 = None
             i2 = None
+        logger.debug("Loading feature indices done, time: {}s".format(timer() -
+                                                                       t1))
+        t1 = timer()
 
         matches = matching.match_symmetric(f1, i1, f2, i2, config)
+        logger.debug("Matching done, time: {}s".format(timer() - t1))
+        t1 = timer()
         logger.debug('{} - {} has {} candidate matches'.format(
             im1, im2, len(matches)))
         if len(matches) < robust_matching_min_match:

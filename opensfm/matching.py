@@ -6,7 +6,7 @@ import logging
 from opensfm import context
 from opensfm import multiview
 
-
+from timeit import default_timer as timer
 logger = logging.getLogger(__name__)
 
 
@@ -19,8 +19,10 @@ def match_lowe(index, f2, config):
         f2: feature descriptors of the second image
         config: config parameters
     """
+    t1 = timer()
     search_params = dict(checks=config['flann_checks'])
     results, dists = index.knnSearch(f2, 2, params=search_params)
+    logger.debug("knnSearch, time: {}s".format(timer() - t1))
     squared_ratio = config['lowes_ratio']**2  # Flann returns squared L2 distances
     good = dists[:, 0] < squared_ratio * dists[:, 1]
     matches = list(zip(results[good, 0], good.nonzero()[0]))
